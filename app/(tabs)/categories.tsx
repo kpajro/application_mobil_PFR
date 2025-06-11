@@ -1,22 +1,39 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  StyleSheet,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
 
 export default function CategoriesScreen() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch('http://172.26.69.134:8080/api/categories');
+      const data = await res.json();
+      setCategories(data['member'] || []);
+    } catch (error) {
+      console.error('Erreur lors du fetch des catégories:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    fetch('http://192.168.1.52:8080/api/categories')
-      .then(res => res.json())
-      .then(data => {
-        setCategories(data['member'] || []);
-        setLoading(false);
-        console.log(data);
-      })
-      .catch(error => {
-        console.error('Erreur lors du fetch des catégories:', error);
-        setLoading(false);
-      });
+    fetchCategories();
+  }, []);
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchCategories();
   }, []);
 
   if (loading) {
@@ -28,6 +45,9 @@ export default function CategoriesScreen() {
       data={categories}
       keyExtractor={(item) => item.id.toString()}
       contentContainerStyle={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+      }
       renderItem={({ item }) => (
         <TouchableOpacity style={styles.card}>
           <Text style={styles.title}>{item.nom}</Text>
