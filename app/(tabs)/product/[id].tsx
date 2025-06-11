@@ -18,17 +18,29 @@ export default function ProductDetailScreen() {
   const { width } = useWindowDimensions();
 
   useEffect(() => {
-    fetch(`http://172.26.69.134:8080/api/produits/${id}`)
-      .then(res => res.json())
-      .then(data => {
-        setProduct(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Erreur:', err);
-        setLoading(false);
-      });
-  }, [id]);
+  fetch(`http://172.26.69.134:8080/api/produits/${id}`)
+    .then(res => res.json())
+    .then(data => {
+      // Préfixe les images avec l'URL du backend si nécessaire
+      if (data.images?.main && !data.images.main.startsWith('http')) {
+        data.images.main = `http://172.26.69.134:8080${data.images.main}`;
+      }
+
+      if (Array.isArray(data.images?.others)) {
+        data.images.others = data.images.others.map((img: string) =>
+          img.startsWith('http') ? img : `http://172.26.69.134:8080${img}`
+        );
+      }
+
+      setProduct(data);
+      setLoading(false);
+    })
+    .catch(err => {
+      console.error('Erreur:', err);
+      setLoading(false);
+    });
+}, [id]);
+
 
   if (loading) {
     return <ActivityIndicator size="large" style={{ marginTop: 40 }} />;
