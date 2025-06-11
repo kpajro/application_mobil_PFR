@@ -8,11 +8,13 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 
 export default function CategoriesScreen() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const router = useRouter();
 
   const fetchCategories = async () => {
     try {
@@ -49,13 +51,15 @@ export default function CategoriesScreen() {
         <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
       }
       renderItem={({ item }) => (
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => router.push({
+            pathname: '/(tabs)/category-products',
+            params: { id: item.id, nom: item.nom },
+          })}
+        >
           <Text style={styles.title}>{item.nom}</Text>
           <Text>Nombre de produits: {item.nbProduits}</Text>
-          <Text>Produits:</Text>
-          {item.produits && item.produits.map(produit => (
-            <Text key={produit.id}> {produit.nom}</Text>
-          ))}
         </TouchableOpacity>
       )}
     />
