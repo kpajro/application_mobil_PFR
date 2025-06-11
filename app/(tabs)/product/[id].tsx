@@ -35,21 +35,44 @@ export default function ProductDetailScreen() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>{product.nom}</Text>
+      
+      {product.images?.length > 0 && product.images.map((img, index) => (
+        <Image key={index} source={{ uri: img }} style={styles.image} resizeMode="contain" />
+      ))}
 
-      {product.image && (
-        <Image source={{ uri: product.image }} style={styles.image} />
-      )}
+      <Text style={styles.label}>Prix:</Text>
+      <Text style={styles.value}>{product.prix} €</Text>
 
-      <Text style={styles.detail}>Prix : {product.prix} €</Text>
-      <Text style={styles.detail}>Édité par : {product.editeur?.nom || 'Inconnu'}</Text>
-      <Text style={styles.detail}>Note : {product.note || 'Non évalué'}</Text>
-      <Text style={styles.detail}>Catégorie : {product.categorie?.nom || 'Non spécifiée'}</Text>
+      <Text style={styles.label}>Catégorie:</Text>
+      <Text style={styles.value}>{product.categorie?.nom}</Text>
 
-      <Text style={styles.sectionTitle}>Description</Text>
-      <Text style={styles.detail}>{product.description || 'Aucune description.'}</Text>
+      <Text style={styles.label}>Description courte:</Text>
+      <Text style={styles.value}>{product.description || 'Aucune description'}</Text>
 
-      <Text style={styles.sectionTitle}>Description détaillée</Text>
-      <Text style={styles.detail}>{product.descriptionDetaillee || 'Aucune description détaillée.'}</Text>
+      <Text style={styles.label}>Description détaillée:</Text>
+      <Text style={styles.value}>{product.longDescription || 'Non fournie'}</Text>
+
+      <Text style={styles.label}>Éditeur:</Text>
+      <Text style={styles.value}>{product.editeur}</Text>
+
+      <Text style={styles.label}>Langages:</Text>
+      <Text style={styles.value}>{product.langages?.join(', ') || 'Non renseigné'}</Text>
+
+      <Text style={styles.label}>Systèmes d'exploitation:</Text>
+      <Text style={styles.value}>{product.os?.join(', ') || 'Non renseigné'}</Text>
+
+      <Text style={styles.label}>Stock:</Text>
+      <Text style={styles.value}>
+        {product.isLimitedStock ? product.stock + ' unités' : 'Stock illimité'}
+      </Text>
+
+      <Text style={styles.label}>Vente en lot:</Text>
+      <Text style={styles.value}>
+        {product.isBulkSale ? `Oui (taille du lot: ${product.bulkSize})` : 'Non'}
+      </Text>
+
+      <Text style={styles.label}>Note:</Text>
+      <Text style={styles.value}>{product.note ?? 'Pas encore noté'}</Text>
     </ScrollView>
   );
 }
@@ -63,22 +86,20 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 12,
-    textAlign: 'center',
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginTop: 12,
+  },
+  value: {
+    fontSize: 16,
+    marginBottom: 8,
   },
   image: {
     width: '100%',
     height: 200,
-    resizeMode: 'contain',
     marginBottom: 16,
-  },
-  detail: {
-    fontSize: 16,
-    marginBottom: 10,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 20,
-    marginBottom: 8,
+    borderRadius: 8,
   },
 });
