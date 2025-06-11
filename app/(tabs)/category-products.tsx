@@ -1,24 +1,44 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState, useCallback } from 'react';
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
+import { useRouter } from 'expo-router';
 
 export default function CategoryProductsScreen() {
   const { id, nom } = useLocalSearchParams<{ id: string; nom: string }>();
   const router = useRouter();
+
   const [produits, setProduits] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchProduits = async () => {
+    try {
+      const res = await fetch(`http://172.26.69.134:8080/api/categories/${id}`);
+      const data = await res.json();
+      setProduits(data.produits || []);
+    } catch (err) {
+      console.error('Erreur:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    fetch(`http://172.26.69.134:8080/api/categories/${id}`)
-      .then(res => res.json())
-      .then(data => {
-        setProduits(data.produits || []);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Erreur:', err);
-        setLoading(false);
-      });
+    fetchProduits();
+  }, [id]);
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchProduits();
   }, [id]);
 
   if (loading) {
@@ -31,6 +51,9 @@ export default function CategoryProductsScreen() {
       <FlatList
         data={produits}
         keyExtractor={(item) => item.id.toString()}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() =>
@@ -49,7 +72,6 @@ export default function CategoryProductsScreen() {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
