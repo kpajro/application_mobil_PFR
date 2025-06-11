@@ -1,4 +1,3 @@
-
 'use client';
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, Modal, Pressable } from 'react-native';
@@ -7,11 +6,27 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React from 'react';
 
-function NavLink({ icon, label, route }: { icon: any, label: string, route: string }) {
+function NavLink({
+  icon,
+  label,
+  route,
+  onClose,
+}: {
+  icon: any;
+  label: string;
+  route: string;
+  onClose: () => void;
+}) {
   const router = useRouter();
   const path = route.toLowerCase() === 'index' ? '/(tabs)' : `/(tabs)/${route.toLowerCase()}`;
+
+  const handlePress = () => {
+    onClose();
+    router.push(path);
+  };
+
   return (
-    <TouchableOpacity onPress={() => router.push(path)} style={styles.navLink}>
+    <TouchableOpacity onPress={handlePress} style={styles.navLink}>
       <Ionicons name={icon} size={20} color="#111" style={{ marginRight: 12 }} />
       <Text style={styles.link}>{label}</Text>
     </TouchableOpacity>
@@ -33,7 +48,6 @@ export default function Navbar({ isLoggedIn = false, isAdmin = false, panierCoun
         />
       </TouchableOpacity>
 
-
       <TouchableOpacity onPress={() => setMenuOpen(true)} style={styles.menuButton}>
         <Ionicons name="menu" size={32} color="#2563eb" />
       </TouchableOpacity>
@@ -50,21 +64,21 @@ export default function Navbar({ isLoggedIn = false, isAdmin = false, panierCoun
           </TouchableOpacity>
           <View style={styles.drawerContent}>
             <View style={styles.drawerLinks}>
-              <NavLink icon="home" label="Accueil" route="Index" />
-              <NavLink icon="list" label="Catégories" route="Categories" />
-              <NavLink icon="search" label="Rechercher" route="Search" />
+              <NavLink icon="home" label="Accueil" route="Index" onClose={() => setMenuOpen(false)} />
+              <NavLink icon="list" label="Catégories" route="Categories" onClose={() => setMenuOpen(false)} />
+              <NavLink icon="search" label="Rechercher" route="Search" onClose={() => setMenuOpen(false)} />
               {isLoggedIn ? (
                 <>
-                  {isAdmin && <NavLink icon="shield-checkmark" label="Admin" route="Admin" />}
-                  <NavLink icon="person" label="Mon profil" route="Profile" />
-                  <NavLink icon="cart" label={panierLabel} route="Panier" />
-                  <NavLink icon="log-out" label="Se déconnecter" route="Logout" />
+                  {isAdmin && <NavLink icon="shield-checkmark" label="Admin" route="Admin" onClose={() => setMenuOpen(false)} />}
+                  <NavLink icon="person" label="Mon profil" route="Profile" onClose={() => setMenuOpen(false)} />
+                  <NavLink icon="cart" label={panierLabel} route="Panier" onClose={() => setMenuOpen(false)} />
+                  <NavLink icon="log-out" label="Se déconnecter" route="Logout" onClose={() => setMenuOpen(false)} />
                 </>
               ) : (
                 <>
-                  <NavLink icon="cart" label={panierLabel} route="Panier" />
-                  <NavLink icon="log-in" label="Se connecter" route="Login" />
-                  <NavLink icon="id-card" label="S'enregistrer" route="Register" />
+                  <NavLink icon="cart" label={panierLabel} route="Panier" onClose={() => setMenuOpen(false)} />
+                  <NavLink icon="log-in" label="Se connecter" route="Login" onClose={() => setMenuOpen(false)} />
+                  <NavLink icon="id-card" label="S'enregistrer" route="Register" onClose={() => setMenuOpen(false)} />
                 </>
               )}
             </View>
@@ -92,7 +106,10 @@ const styles = StyleSheet.create({
   },
   overlay: {
     position: 'absolute',
-    top: 0, left: 0, right: 0, bottom: 0,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.3)',
   },
   drawer: {
