@@ -1,9 +1,10 @@
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet, FlatList } from 'react-native';
+import { View, Text, ActivityIndicator, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 
 export default function CategoryProductsScreen() {
   const { id, nom } = useLocalSearchParams<{ id: string; nom: string }>();
+  const router = useRouter();
   const [produits, setProduits] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,14 +32,24 @@ export default function CategoryProductsScreen() {
         data={produits}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.productName}>{item.nom}</Text>
-          </View>
+          <TouchableOpacity
+            onPress={() =>
+              router.push({
+                pathname: '/(tabs)/product/[id]',
+                params: { id: item.id },
+              })
+            }
+          >
+            <View style={styles.card}>
+              <Text style={styles.productName}>{item.nom}</Text>
+            </View>
+          </TouchableOpacity>
         )}
       />
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
