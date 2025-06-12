@@ -1,7 +1,7 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
-import { Slot, useRouter } from 'expo-router';
+import { Stack } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { useState } from 'react';
 import { PanierProvider } from '../context/PanierContext';
@@ -17,8 +17,6 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
-  const router = useRouter();
-
   const [isLoggedIn] = useState(true);
   const [isAdmin] = useState(false);
   const [panierCount] = useState(0); // à remplacer par panier.length + usePanier plus tard
@@ -28,7 +26,7 @@ export default function RootLayout() {
   }
 
   return (
-    <PanierProvider> {/* Provide the panier context to the entire app */ }
+    <PanierProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <View style={{ flex: 1, justifyContent: 'space-between' }}>
           <Navbar
@@ -38,7 +36,7 @@ export default function RootLayout() {
             onNavigate={(route) => router.push(`/${route.toLowerCase()}`)}
           />
           <View style={{ flex: 1 }}>
-            <Slot />
+            <Stack screenOptions={{ headerShown: false }} />
           </View>
           <Footer />
           <StatusBar style={colorScheme === 'dark' ? 'light' : 'light'} />
