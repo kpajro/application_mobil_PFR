@@ -1,4 +1,3 @@
-// /context/PanierContext.tsx
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -14,7 +13,19 @@ export const PanierProvider = ({ children }) => {
   }, []);
 
   const ajouterAuPanier = async (article) => {
-    const nouveauPanier = [...panier, article];
+    const existant = panier.find((item) => item.id === article.id);
+
+    let nouveauPanier;
+    if (existant) {
+      nouveauPanier = panier.map((item) =>
+        item.id === article.id
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      );
+    } else {
+      nouveauPanier = [...panier, { ...article, quantity: 1 }];
+    }
+
     setPanier(nouveauPanier);
     await AsyncStorage.setItem('panier', JSON.stringify(nouveauPanier));
   };
@@ -25,13 +36,26 @@ export const PanierProvider = ({ children }) => {
     await AsyncStorage.setItem('panier', JSON.stringify(nouveauPanier));
   };
 
+  const diminuerQuantite = async (id) => {
+    const nouveauPanier = panier
+      .map((item) =>
+        item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+      )
+      .filter((item) => item.quantity > 0);
+
+    setPanier(nouveauPanier);
+    await AsyncStorage.setItem('panier', JSON.stringify(nouveauPanier));
+  };
+
   const viderPanier = async () => {
     setPanier([]);
     await AsyncStorage.removeItem('panier');
   };
 
   return (
-    <PanierContext.Provider value={{ panier, ajouterAuPanier, supprimerDuPanier, viderPanier }}>
+    <PanierContext.Provider
+      value={{ panier, ajouterAuPanier, supprimerDuPanier, viderPanier, diminuerQuantite }}
+    >
       {children}
     </PanierContext.Provider>
   );
