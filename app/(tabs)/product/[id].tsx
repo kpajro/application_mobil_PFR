@@ -9,8 +9,11 @@ import {
   Image,
   RefreshControl,
   useWindowDimensions,
+  TouchableOpacity,
+  Alert,
 } from 'react-native';
 import RenderHTML from 'react-native-render-html';
+import { usePanier } from '../../../context/PanierContext';
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -18,6 +21,8 @@ export default function ProductDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const { width } = useWindowDimensions();
+
+  const { ajouterAuPanier } = usePanier(); // ✅ hook du panier
 
   const fetchProduct = async () => {
     try {
@@ -40,6 +45,11 @@ export default function ProductDetailScreen() {
     setRefreshing(true);
     fetchProduct();
   }, [id]);
+
+  const handleAddToCart = () => {
+    ajouterAuPanier(product);
+    Alert.alert('Ajouté au panier', `${product.nom} a été ajouté au panier.`);
+  };
 
   if (loading) {
     return <ActivityIndicator size="large" style={{ marginTop: 40 }} />;
@@ -102,6 +112,11 @@ export default function ProductDetailScreen() {
 
       <Text style={styles.label}>Note:</Text>
       <Text style={styles.value}>{product.note ?? 'Pas encore noté'}</Text>
+
+      {/* ✅ BOUTON AJOUTER AU PANIER */}
+      <TouchableOpacity style={styles.button} onPress={handleAddToCart}>
+        <Text style={styles.buttonText}>Ajouter au panier</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
@@ -131,5 +146,18 @@ const styles = StyleSheet.create({
     height: 200,
     marginBottom: 16,
     borderRadius: 8,
+  },
+  button: {
+    backgroundColor: '#4caf50',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    marginTop: 24,
+  },
+  buttonText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });

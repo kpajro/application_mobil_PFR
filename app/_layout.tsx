@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Slot, useRouter } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { useState } from 'react';
-
+import { PanierProvider } from '../context/PanierContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -19,33 +19,34 @@ export default function RootLayout() {
 
   const router = useRouter();
 
-  const [isLoggedIn] = useState(true); // à remplacer par logique auth
+  const [isLoggedIn] = useState(true);
   const [isAdmin] = useState(false);
-  const [panierCount] = useState(0);
+  const [panierCount] = useState(0); // à remplacer par panier.length + usePanier plus tard
 
   if (!loaded) {
-  return null;
+    return null;
   }
 
   return (
-  <ThemeProvider value={colorScheme === 'dark' ? DefaultTheme : DefaultTheme}>
-    <View style={{ flex: 1, justifyContent: 'space-between' }}>
-      <Navbar
-        isLoggedIn={isLoggedIn}
-        isAdmin={isAdmin}
-        panierCount={panierCount}
-        onNavigate={(route) => router.push(`/${route.toLowerCase()}`)}
-      />
-      <View style={{ flex: 1 }}>
-        <Slot />
-      </View>
-      <Footer />
-      <StatusBar style={colorScheme === 'dark' ? 'light' : 'light'} />
-    </View>
-  </ThemeProvider>
+    <PanierProvider> {/* Provide the panier context to the entire app */ }
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <View style={{ flex: 1, justifyContent: 'space-between' }}>
+          <Navbar
+            isLoggedIn={isLoggedIn}
+            isAdmin={isAdmin}
+            panierCount={panierCount}
+            onNavigate={(route) => router.push(`/${route.toLowerCase()}`)}
+          />
+          <View style={{ flex: 1 }}>
+            <Slot />
+          </View>
+          <Footer />
+          <StatusBar style={colorScheme === 'dark' ? 'light' : 'light'} />
+        </View>
+      </ThemeProvider>
+    </PanierProvider>
   );
 }
-
 
 const styles = StyleSheet.create({
   layout: {
