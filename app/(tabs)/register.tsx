@@ -15,7 +15,7 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [accountType, setAccountType] = useState('particulier');
-  const [dateOfBirth, setDateOfBirth] = useState(new Date(2000, 0, 1));
+  const [birthdayDate, setDateOfBirth] = useState(new Date(2000, 0, 1));
   const [show, setShow] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [country, setCountry] = useState('');
@@ -23,7 +23,7 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
 
   const onChange = (event, selectedDate) => {
-    const currentDate = selectedDate || dateOfBirth;
+    const currentDate = selectedDate || birthdayDate;
     setShow(Platform.OS === 'ios');
     setDateOfBirth(currentDate);
   };
@@ -48,10 +48,10 @@ export default function RegisterScreen() {
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/register', {
+      const response = await fetch('https://f144b9b1ca74.ngrok-free.app/api/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstname, lastname, email, password, accountType })
+        headers: { 'Content-Type': 'application/json'},
+        body: JSON.stringify({ firstname, lastname, email, password, accountType, birthdayDate, phoneNumber, country })
       });
 
       if (!response.ok) {
@@ -59,7 +59,7 @@ export default function RegisterScreen() {
         throw new Error(errorData.message || 'Une erreur est survenue');
       }
 
-      Alert.alert('Succès', 'Compte créé avec succès');
+      Alert.alert('Succès', `${birthdayDate}`);
       router.replace('/(tabs)/login');
     } catch (error) {
       Alert.alert('Erreur', error.message);
@@ -94,11 +94,11 @@ export default function RegisterScreen() {
 
 
       <Text>Date de naissance</Text>
-      <Button onPress={showDatepicker} title={dateOfBirth.toLocaleDateString()} />
+      <Button onPress={showDatepicker} title={birthdayDate.toLocaleDateString()} />
 
       {show && (
         <DateTimePicker
-          value={dateOfBirth}
+          value={birthdayDate}
           mode="date"
           display="default"
           onChange={onChange}

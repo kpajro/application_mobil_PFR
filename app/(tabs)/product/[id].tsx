@@ -21,7 +21,7 @@ export default function ProductDetailScreen() {
 
   const fetchProduct = async () => {
     try {
-      const res = await fetch(`http://172.26.69.134:8080/api/produits/${id}`);
+      const res = await fetch(`https://localhost:8000/api/produits/${id}`);
       const data = await res.json();
       setProduct(data);
     } catch (err) {

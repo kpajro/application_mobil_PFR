@@ -18,7 +18,7 @@ export default function CategoriesScreen() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch('http://172.26.69.134:8080/api/categories');
+      const res = await fetch('https://f144b9b1ca74.ngrok-free.app/api/categories');
       const data = await res.json();
       setCategories(data['member'] || []);
     } catch (error) {

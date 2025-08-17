@@ -21,7 +21,7 @@ export default function CategoryProductsScreen() {
 
     const fetchProduits = async () => {
         try {
-            const res = await fetch(`http://172.26.69.134:8080/api/categories/${id}`);
+            const res = await fetch(`http://localhost:8000/api/categories/${id}`);
             const data = await res.json();
             setProduits(data.produits || []);
         } catch (err) {
