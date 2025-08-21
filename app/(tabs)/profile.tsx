@@ -1,7 +1,8 @@
 
-import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Alert, Image, ScrollView } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import React from 'react';
 import Navbar from '@/components/Navbar';
@@ -12,27 +13,33 @@ export default function ProfilScreen() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (id) {
-      axios.get(`http://172.26.69.134:8080/api/users/${id}`)
-        .then(res => setUser(res.data))
-        .catch(() => setError('Erreur lors du chargement des données utilisateur'));
+    getProfile()
+  }, []);
+
+  const getProfile = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      console.log("TOKEN:", token);
+
+      const res = await fetch('https://b6c3e5a703db.ngrok-free.app/api/profile', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(`HTTP ${res.status}: ${errText}`);
+      }
+
+      const profile = await res.json();
+      console.log("PROFILE:", profile);
+      setUser(profile);
+    } catch (err) {
+      console.error("ERROR:", err);
+      setError(err.message);
     }
-  }, [id]);
-
-  if (error) {
-    return (
-      <View style={styles.center}>
-        <Text style={styles.error}>{error}</Text>
-      </View>
-    );
-  }
-
-  if (!user) {
-    return (
-      <View style={styles.center}>
-        <Text>Chargement...</Text>
-      </View>
-    );
   }
 
   return (
@@ -42,11 +49,6 @@ export default function ProfilScreen() {
           source={require('@/assets/images/default-profile.png')}
           style={styles.avatar}
         />
-        <Text style={styles.name}>{user.firstname} {user.name}</Text>
-        <Text style={styles.email}>{user.email}</Text>
-        <Text style={styles.info}>Téléphone : {user.phone || 'N/A'}</Text>
-        <Text style={styles.info}>Statut : {user.type}</Text>
-        <Text style={styles.info}>Adresse : {user.address || 'N/A'}</Text>
       </View>
     </ScrollView>
   );

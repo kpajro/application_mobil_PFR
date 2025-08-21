@@ -31,27 +31,26 @@ export default function LoginScreen() {
   };
 
   const handleLogin = async () => {
-    if (!validateForm()) return;
-    try {
-      const response = await fetch('http://192.168.1.52:8080/api/login_check', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: email, password }),
-      });
+  if (!validateForm()) return;
+  try {
+    const response = await fetch('https://b6c3e5a703db.ngrok-free.app/api/login', {
+      method: 'OPTIONS',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Connexion échouée.');
-      }
-
-      const data = await response.json();
-      await AsyncStorage.setItem('token', data.token);
-      Alert.alert('Succès', 'Connexion réussie !');
-      router.replace('/(tabs)/profile');
-    } catch (error) {
-      Alert.alert('Erreur', error.message);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Connexion échouée.');
     }
-  };
+    const data = await response.json();
+    Alert.alert(`jwt ${data.token}`)
+    await AsyncStorage.setItem('token', data.token);
+    router.replace('/(tabs)/profile');
+  } catch (error) {
+    Alert.alert('Erreur', error.message);
+  }
+};
 
   return (
     <View style={styles.container}>
