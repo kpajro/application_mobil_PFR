@@ -11,6 +11,10 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import RenderHTML from 'react-native-render-html';
+import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+const extra = Constants.expoConfig?.extra || {};
+const API_BASE_URL = extra.API_BASE_URL;
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -20,8 +24,16 @@ export default function ProductDetailScreen() {
   const { width } = useWindowDimensions();
 
   const fetchProduct = async () => {
+    const token = await AsyncStorage.getItem('token')
     try {
-      const res = await fetch(`https://localhost:8000/api/produits/${id}`);
+      const res = await fetch(`${API_BASE_URL}/api/produits/${id}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        }
+      });
       const data = await res.json();
       setProduct(data);
     } catch (err) {

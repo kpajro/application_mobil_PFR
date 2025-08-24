@@ -1,15 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, Alert, ActivityIndicator, RefreshControl } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
+const extra = Constants.expoConfig?.extra || {};
+const API_BASE_URL = extra.API_BASE_URL;
 
 export default function FAQScreen() {
   const [faqdata, setFaqdata] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const faqdataf = async () => {
+    const token = await AsyncStorage.getItem('token');
     try {
-      const response = await fetch('https://f144b9b1ca74.ngrok-free.app/api/faqs', {
+      const response = await fetch(`${API_BASE_URL}/api/faqs`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json' 
+        },
       });
 
       if (!response.ok) {
@@ -18,16 +27,23 @@ export default function FAQScreen() {
       }
 
       const data = await response.json()
-      setFaqdata(data)
+      setFaqdata(data.member)
       setLoading(false)
 
     } catch (error) {
       setLoading(false);
       Alert.alert('Erreur', error.message)
+    } finally {
+      setRefreshing(false)
     }
   };
 
   useEffect(() => {
+    faqdataf();
+  }, []);
+
+  const handleRefresh = useCallback(() => {
+    setRefreshing(true);
     faqdataf();
   }, []);
 
@@ -41,9 +57,13 @@ export default function FAQScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    
+    <ScrollView contentContainerStyle={styles.container}
+    refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
+    >
       <Text style={styles.title}>Foire Aux Questions (FAQ)</Text>
-
       <Text style={styles.question}>Q : Comment créer un compte ?</Text>
       <Text style={styles.answer}>R : Depuis la page d’accueil, cliquez sur "S’enregistrer" et remplissez le formulaire.</Text>
 
@@ -55,8 +75,8 @@ export default function FAQScreen() {
 
       {faqdata && (
         <View style={{ marginTop: 20 }}>
-          <Text style={styles.title}>FAQ depuis l'API</Text>
-          <Text>{JSON.stringify(faqdata, null, 2)}</Text>
+          <Text>{faqdata[0].questions}</Text>
+          <Text>{faqdata[0].reponses}</Text>
         </View>
       )}
     </ScrollView>

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -11,11 +11,16 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import Navbar from '@/components/Navbar';
+import { AuthContext } from '@/app/_layout';
+import Constants from 'expo-constants';
+const extra = Constants.expoConfig?.extra || {};
+const API_BASE_URL = extra.API_BASE_URL;
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
+  const { setIsLoggedIn } = useContext(AuthContext);
 
   const validateForm = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -33,9 +38,11 @@ export default function LoginScreen() {
   const handleLogin = async () => {
   if (!validateForm()) return;
   try {
-    const response = await fetch('https://b6c3e5a703db.ngrok-free.app/api/login', {
-      method: 'OPTIONS',
-      headers: { 'Content-Type': 'application/json' },
+    const response = await fetch(`${API_BASE_URL}/api/login_check`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+       },
       body: JSON.stringify({ email, password }),
     });
 
@@ -44,9 +51,11 @@ export default function LoginScreen() {
       throw new Error(errorData.message || 'Connexion échouée.');
     }
     const data = await response.json();
-    Alert.alert(`jwt ${data.token}`)
+    Alert.alert(`connected!`)
+    setIsLoggedIn(true);
+    console.log(data.token)
     await AsyncStorage.setItem('token', data.token);
-    router.replace('/(tabs)/profile');
+    router.replace('/');
   } catch (error) {
     Alert.alert('Erreur', error.message);
   }
