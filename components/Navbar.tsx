@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, Modal, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React from 'react';
@@ -69,16 +70,15 @@ export default function Navbar({ isLoggedIn = false, isAdmin = false, panierCoun
               <NavLink icon="search" label="Rechercher" route="Search" onClose={() => setMenuOpen(false)} />
               {isLoggedIn ? (
                 <>
-                  {isAdmin && <NavLink icon="shield-checkmark" label="Admin" route="Admin" onClose={() => setMenuOpen(false)} />}
-                  <NavLink icon="person" label="Mon profil" route="Profile" onClose={() => setMenuOpen(false)} />
-                  <NavLink icon="cart" label={panierLabel} route="Panier" onClose={() => setMenuOpen(false)} />
-                  <NavLink icon="log-out" label="Se déconnecter" route="Logout" onClose={() => setMenuOpen(false)} />
+                  <NavLink icon="person" label="Mon profil" route="auth/profile" onClose={() => setMenuOpen(false)} />
+                  <NavLink icon="cart" label={panierLabel} route="auth/panier" onClose={() => setMenuOpen(false)} />
+                  <NavLink icon="log-out" label="Se déconnecter" route="auth/logout" onClose={() => setMenuOpen(false)} />
                 </>
               ) : (
                 <>
-                  <NavLink icon="cart" label={panierLabel} route="Panier" onClose={() => setMenuOpen(false)} />
-                  <NavLink icon="log-in" label="Se connecter" route="Login" onClose={() => setMenuOpen(false)} />
-                  <NavLink icon="id-card" label="S'enregistrer" route="Register" onClose={() => setMenuOpen(false)} />
+                  <NavLink icon="cart" label={panierLabel} route="auth/panier" onClose={() => setMenuOpen(false)} />
+                  <NavLink icon="log-in" label="Se connecter" route="auth/login" onClose={() => setMenuOpen(false)} />
+                  <NavLink icon="id-card" label="S'enregistrer" route="auth/register" onClose={() => setMenuOpen(false)} />
                 </>
               )}
             </View>

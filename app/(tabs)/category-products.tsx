@@ -10,6 +10,10 @@ import {
     RefreshControl,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+const extra = Constants.expoConfig?.extra || {};
+const API_BASE_URL = extra.API_BASE_URL;
 
 export default function CategoryProductsScreen() {
     const { id, nom } = useLocalSearchParams<{ id: string; nom: string }>();
@@ -20,8 +24,13 @@ export default function CategoryProductsScreen() {
     const [refreshing, setRefreshing] = useState(false);
 
     const fetchProduits = async () => {
+        const token = await AsyncStorage.getItem('token')
         try {
-            const res = await fetch(`http://localhost:8000/api/categories/${id}`);
+            const res = await fetch(`${API_BASE_URL}/api/categories/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             const data = await res.json();
             setProduits(data.produits || []);
         } catch (err) {

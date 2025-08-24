@@ -9,6 +9,9 @@ import {
   ScrollView,
   Animated,
 } from 'react-native';
+import Constants from 'expo-constants';
+const extra = Constants.expoConfig?.extra || {};
+const API_BASE_URL = extra.API_BASE_URL;
 
 export default function SupportScreen() {
   const [firstname, setFirstname] = useState('');
@@ -47,72 +50,43 @@ export default function SupportScreen() {
     );
   };
 
-//   const handleSubmit = async () => {
-//     if (!firstname || !lastname || !email || !subject || !message) {
-//       showMessage('error', 'Tous les champs sont requis.');
-//       return;
-//     }
-
-//     if (!validateEmail(email)) {
-//       showMessage('error', 'Adresse email invalide.');
-//       return;
-//     }
-
-//     setLoading(true);
-//     try {
-//       const response = await fetch('http://172.26.69.134:8080/api/support', {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ firstname, lastname, email, subject, message }),
-//       });
-
-//       if (!response.ok) {
-//         const errorData = await response.json();
-//         throw new Error(errorData.message || 'Une erreur est survenue.');
-//       }
-
-//       showMessage('success', 'Message envoyé avec succès !');
-
-//       setFirstname('');
-//       setLastname('');
-//       setEmail('');
-//       setSubject('');
-//       setMessage('');
-//     } catch (err: any) {
-//       showMessage('error', err.message || 'Erreur réseau.');
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-
-// CE HANDLE SIMULE UN ENVOI REUSSI DU MAIL, LE HANDLE CORRECT EST CELUI COMMENTE AU-DESSUS
   const handleSubmit = async () => {
-  if (!firstname || !lastname || !email || !subject || !message) {
-    showMessage('error', 'Tous les champs sont requis.');
-    return;
-  }
+    if (!firstname || !lastname || !email || !subject || !message) {
+      showMessage('error', 'Tous les champs sont requis.');
+      return;
+    }
 
-  if (!validateEmail(email)) {
-    showMessage('error', 'Adresse email invalide.');
-    return;
-  }
+    if (!validateEmail(email)) {
+      showMessage('error', 'Adresse email invalide.');
+      return;
+    }
 
-  setLoading(true);
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/support`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstname, lastname, email, subject, message }),
+      });
 
-  // Simule une requête API
-  setTimeout(() => {
-    showMessage('success', 'Message envoyé avec succès !');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Une erreur est survenue.');
+      }
 
-    setFirstname('');
-    setLastname('');
-    setEmail('');
-    setSubject('');
-    setMessage('');
-    setLoading(false);
-  }, 1500);
-};
+      showMessage('success', 'Message envoyé avec succès !');
 
+      setFirstname('');
+      setLastname('');
+      setEmail('');
+      setSubject('');
+      setMessage('');
+    } catch (err: any) {
+      showMessage('error', err.message || 'Erreur réseau.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

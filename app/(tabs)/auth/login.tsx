@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   View,
   Text,
@@ -11,11 +11,16 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import Navbar from '@/components/Navbar';
+import { AuthContext } from '@/app/_layout';
+import Constants from 'expo-constants';
+const extra = Constants.expoConfig?.extra || {};
+const API_BASE_URL = extra.API_BASE_URL;
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
+  const { setIsLoggedIn } = useContext(AuthContext);
 
   const validateForm = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -31,27 +36,30 @@ export default function LoginScreen() {
   };
 
   const handleLogin = async () => {
-    if (!validateForm()) return;
-    try {
-      const response = await fetch('http://192.168.1.52:8080/api/login_check', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: email, password }),
-      });
+  if (!validateForm()) return;
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/login_check`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+       },
+      body: JSON.stringify({ email, password }),
+    });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Connexion échouée.');
-      }
-
-      const data = await response.json();
-      await AsyncStorage.setItem('token', data.token);
-      Alert.alert('Succès', 'Connexion réussie !');
-      router.replace('/(tabs)/profile');
-    } catch (error) {
-      Alert.alert('Erreur', error.message);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Connexion échouée.');
     }
-  };
+    const data = await response.json();
+    Alert.alert(`connected!`)
+    setIsLoggedIn(true);
+    console.log(data.token)
+    await AsyncStorage.setItem('token', data.token);
+    router.replace('/');
+  } catch (error) {
+    Alert.alert('Erreur', error.message);
+  }
+};
 
   return (
     <View style={styles.container}>

@@ -5,6 +5,9 @@ import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
 import Navbar from '@/components/Navbar';
+import Constants from 'expo-constants';
+const extra = Constants.expoConfig?.extra || {};
+const API_BASE_URL = extra.API_BASE_URL;
 
 
 export default function RegisterScreen() {
@@ -48,7 +51,7 @@ export default function RegisterScreen() {
 
     setLoading(true);
     try {
-      const response = await fetch('https://f144b9b1ca74.ngrok-free.app/api/register', {
+      const response = await fetch(`${API_BASE_URL}/api/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json'},
         body: JSON.stringify({ firstname, lastname, email, password, accountType, birthdayDate, phoneNumber, country })

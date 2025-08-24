@@ -8,7 +8,11 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
+import Constants from 'expo-constants';
+const extra = Constants.expoConfig?.extra || {};
+const API_BASE_URL = extra.API_BASE_URL;
 
 export default function CategoriesScreen() {
   const [categories, setCategories] = useState([]);
@@ -17,8 +21,17 @@ export default function CategoriesScreen() {
   const router = useRouter();
 
   const fetchCategories = async () => {
+    const token = await AsyncStorage.getItem('token');
     try {
-      const res = await fetch('https://f144b9b1ca74.ngrok-free.app/api/categories');
+      const res = await fetch(`${API_BASE_URL}/api/categories`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'User-Agent': 'AppMobile/1.0',
+          'ngrok-skip-browser-warning': 'true'
+        },
+      });
       const data = await res.json();
       setCategories(data['member'] || []);
     } catch (error) {

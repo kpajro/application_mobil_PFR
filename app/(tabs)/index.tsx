@@ -1,12 +1,13 @@
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useContext } from 'react';
 import Navbar from '@/components/Navbar';
+import { AuthContext } from '../_layout';
 
 export default function HomeScreen() {
   const router = useRouter();
-
+  const {isLoggedIn} = useContext(AuthContext)
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
       <View style={{ flex: 1, flexDirection: 'row', padding: 20 }}>
@@ -20,12 +21,23 @@ export default function HomeScreen() {
             Gestion, automatisation, collaboration : trouvez la solution qui vous correspond.
           </Text>
           <View style={{ flexDirection: 'row', gap: 16 }}>
-            <TouchableOpacity onPress={() => router.push('/register')}>
-              <Text style={{ fontSize: 16, color: '#2563eb', textDecorationLine: 'underline' }}>S’enregistrer</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => router.push('/login')}>
-              <Text style={{ fontSize: 16, color: '#2563eb', textDecorationLine: 'underline' }}>Se connecter</Text>
-            </TouchableOpacity>
+            {!isLoggedIn && (
+              <>
+                <TouchableOpacity onPress={() => router.push('auth/register')}>
+                  <Text style={{ fontSize: 16, color: '#2563eb', textDecorationLine: 'underline' }}>S’enregistrer</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('auth/login')}>
+                  <Text style={{ fontSize: 16, color: '#2563eb', textDecorationLine: 'underline' }}>Se connecter</Text>
+                </TouchableOpacity>
+              </>
+            )}
+            {isLoggedIn && (
+              <>
+                <TouchableOpacity onPress={() => router.push('auth/logout')}>
+                  <Text style={{ fontSize: 16, color: '#2563eb', textDecorationLine: 'underline' }}>Se déconnecter</Text>
+                </TouchableOpacity>
+              </>
+            )}
           </View>
         </View>
 
