@@ -58,7 +58,7 @@ export default function CategoriesScreen() {
   return (
     <FlatList
       data={categories}
-      keyExtractor={(item) => item.id.toString()}
+      keyExtractor={(item) => item.id}
       contentContainerStyle={styles.container}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />

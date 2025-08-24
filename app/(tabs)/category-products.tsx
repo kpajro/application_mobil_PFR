@@ -59,7 +59,7 @@ export default function CategoryProductsScreen() {
             <Text style={styles.title}>Produits de la catégorie "{nom}"</Text>
             <FlatList
                 data={produits}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item) => item.id}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
                 }
