@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Alert, Button } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Alert, Button, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { red } from 'react-native-reanimated/lib/typescript/Colors';
+import { apiFetch } from '@/utils/apiFetch';
 const extra = Constants.expoConfig?.extra || {};
 const API_BASE_URL = extra.API_BASE_URL;
 
@@ -19,6 +20,30 @@ export default function PanierScreen() {
     setRefreshing(true);
     fetchPanier();
   }, []);
+
+  const removeProductFromPanier = async (id: number) => {
+    const token = await AsyncStorage.getItem('token')
+    const res = await apiFetch(`/api/remove-produit/${id}`,
+      { method: "POST"},
+      { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }}
+    )
+    fetchPanier();
+  }
+
+  const goToStripe = async () => {
+  const url = "https://www.stripe.com";
+  try {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert("Erreur", "Impossible d'ouvrir le lien.");
+    }
+  } catch (err) {
+    console.error("Erreur ouverture URL:", err);
+    Alert.alert("Erreur", "Une erreur est survenue.");
+  }
+};
 
   const fetchPanier = async () => {
     const token = await AsyncStorage.getItem('token');
@@ -64,12 +89,12 @@ export default function PanierScreen() {
               <View style={styles.item}>
                 <Text style={styles.name}>{item.produit.nom}</Text>
                 <Text style={styles.price}>{item.produit.prix} € x {item.amount}</Text>
-                <Button color="#ff0000ff" title='X'></Button>
+                <Button color="#ff0000ff" title='X' onPress={() => removeProductFromPanier(item.produit.id)}></Button>
               </View>
             )}
           />
           <Text style={styles.total}>Total : {total.toFixed(2)} €</Text>
-          <Button title='Aller au paiement'></Button>
+          <Button title='Aller au paiement' onPress={goToStripe}></Button>
         </>
       )}
     </View>

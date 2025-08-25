@@ -7,7 +7,7 @@ const API_BASE_URL = extra.API_BASE_URL;
 
 
 
-export async function apiFetch(endpoint, options = {}, headers = {}) {
+export async function apiFetch(endpoint, options = {}, headers = {}, body = {}) {
   let token = await AsyncStorage.getItem('token');
 
   if (token) {
@@ -17,6 +17,7 @@ export async function apiFetch(endpoint, options = {}, headers = {}) {
   let response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     ...headers,
+    ...body
   });
 
   // If expired, try refreshing
